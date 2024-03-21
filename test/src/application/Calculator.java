@@ -56,37 +56,44 @@ public class Calculator extends Application {
 
     // 計算をする
     public static void calculate(ActionEvent event, TextField textField) {
-        // テキストフィールドの内容を取得して、数値に変換する
-        double value = Double.parseDouble(textField.getText()); // 注4
-        // 前回のボタンの計算を行う
-        switch (pressed.getText()) {
-        case "+": // 加算
-            result += value;
-            break;
-        case "-": // 減算
-            result -= value;
-            break;
-        case "\u00D7": // 乗算
-            result *= value;
-            break;
-        case "\u00F7": // 除算
-            result /= value;
-            break;
-        default: // 入力値
-            result = value;
-        }
-        // 計算結果を文字列に変換してテキストフィールドに書き込む
-        if (result == (long) result) { // 整数の場合
-            textField.setText(String.format("%d", (long) result));
-        } else { // 整数以外の場合
-            textField.setText(String.format("%g", result)); // 注5
-        }
+    	try {
+    		// テキストフィールドの内容を取得して、数値に変換する
+            double value = Double.parseDouble(textField.getText());
+            String operation = pressed.getText();
+            result = performCalculate(result, value, operation);
+            
+            textField.setText(formatResult(result));
+            
+
+            // 今回のボタンを識別する
+            Button nowPressed = (Button) event.getSource();
+            // 今回のボタンを記憶する
+            pressed.setText(nowPressed.getText());
+    	} catch(NumberFormatException e) {
+    		textField.setText("Error: " + e);
+    	}
+        
+        
         // テキストフィールドにフォーカスする
-        textField.requestFocus(); // 注6
-        // 今回のボタンを識別する
-        Button nowPressed = (Button) event.getSource();
-        // 今回のボタンを記憶する
-        pressed.setText(nowPressed.getText());
+        textField.requestFocus();
+    }
+    
+    private static double performCalculate(double result, double value, String operation) {
+    	switch (operation) {
+	    	case "+": return result + value;
+	        case "-": return result - value;
+	        case "\u00D7": return result * value;
+	        case "\u00F7": return result / value;
+	        default: return value; // 初期値または演算子がない場合は入力値をそのまま返す
+    	}
+    }
+    
+    private static String formatResult(double result) {
+        if (result == (long) result) { // 整数の場合
+            return String.format("%d", (long) result);
+        } else { // 浮動小数点数の場合
+            return String.format("%g", result);
+        }
     }
 
     public static void main(String[] args) {
